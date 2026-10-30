@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+设置.json
+错误.log
+.parts/
+*.part
+*.tmp
+.DS_Store
+Thumbs.db

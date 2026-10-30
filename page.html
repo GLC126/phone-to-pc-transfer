@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#070b16">
+<title>传到电脑</title>
+<link rel="icon" href="favicon.ico">
+<style>
+:root{
+  --bg:#070b16;
+  --ink:#eaeefb; --ink2:#c3cbe4; --dim:#8b96b5; --faint:#5b6684;
+  --line:rgba(255,255,255,.085); --line2:rgba(255,255,255,.055);
+  --glass:rgba(255,255,255,.045);
+  --a1:#5b8cff; --a2:#8b6cff; --ok:#34d399; --err:#f87171; --warn:#fbbf24;
+  --r:20px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB",
+  "Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{padding:20px 16px calc(32px + env(safe-area-inset-bottom));max-width:600px;margin:0 auto;
+  position:relative;overflow-x:hidden}
+.aurora{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(58% 38% at 22% -6%,rgba(91,140,255,.30),transparent 62%),
+    radial-gradient(50% 34% at 88% 4%,rgba(139,108,255,.24),transparent 60%),
+    radial-gradient(46% 30% at 50% 104%,rgba(52,211,153,.10),transparent 62%)}
+.grain{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+  background-image:radial-gradient(rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:3px 3px;mix-blend-mode:overlay}
+main{position:relative;z-index:1}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.028));
+  border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:0 28px 60px -30px rgba(0,0,0,.95),inset 0 1px 0 rgba(255,255,255,.07);
+  backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%)}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.mark{width:46px;height:46px;border-radius:14px;flex:none;
+  box-shadow:0 12px 28px -10px rgba(91,140,255,.85),inset 0 1px 0 rgba(255,255,255,.4)}
+.who{flex:1 1 auto;min-width:0}
+h1{font-size:18px;margin:0;font-weight:640;letter-spacing:-.2px}
+.sub{color:var(--dim);font-size:12px;margin-top:3px;letter-spacing:.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{flex:none;display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink2);
+  background:var(--glass);border:1px solid var(--line);border-radius:999px;
+  padding:7px 12px;white-space:nowrap;backdrop-filter:blur(10px)}
+.pill .dot{width:7px;height:7px;border-radius:50%;background:var(--faint);flex:none}
+.pill.on .dot{background:var(--ok);box-shadow:0 0 0 0 rgba(52,211,153,.7);animation:ping 2.4s infinite}
+.pill.on{color:#a7f3d0;border-color:rgba(52,211,153,.3)}
+.pill.err{color:#fecaca;border-color:rgba(248,113,113,.3)}
+.pill.err .dot{background:var(--err)}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(52,211,153,.55)}70%{box-shadow:0 0 0 7px rgba(52,211,153,0)}
+  100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+.hero{padding:14px}
+.cta{position:relative;display:flex;align-items:center;gap:14px;width:100%;border:0;
+  cursor:pointer;font-family:inherit;text-align:left;color:#fff;border-radius:16px;
+  padding:17px 16px;overflow:hidden;
+  background:linear-gradient(135deg,#4f7cff 0%,#7c5cff 55%,#8b6cff 100%);
+  box-shadow:0 18px 34px -16px rgba(91,124,255,.95),inset 0 1px 0 rgba(255,255,255,.28),
+    inset 0 -1px 0 rgba(0,0,0,.18);
+  transition:transform .12s cubic-bezier(.2,.8,.2,1)}
+.cta:active{transform:scale(.982)}
+.cta::after{content:"";position:absolute;top:0;left:-60%;width:45%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.28),transparent);
+  transform:skewX(-18deg);animation:sweep 4.6s ease-in-out infinite}
+@keyframes sweep{0%,64%{left:-60%}82%,100%{left:130%}}
+.cta .ic{width:40px;height:40px;border-radius:12px;flex:none;display:grid;place-items:center;
+  background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.24)}
+.cta b{display:block;font-size:17px;font-weight:640;letter-spacing:-.1px}
+.cta small{display:block;font-size:12px;margin-top:4px;color:rgba(255,255,255,.86)}
+.cta .arrow{margin-left:auto;opacity:.72;flex:none}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:11px}
+.ghost{display:flex;align-items:center;gap:11px;text-align:left;cursor:pointer;
+  font-family:inherit;color:var(--ink);border-radius:15px;padding:14px 13px;
+  background:var(--glass);border:1px solid var(--line);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+  transition:transform .12s cubic-bezier(.2,.8,.2,1),border-color .2s,background .2s}
+.ghost:active{transform:scale(.982);background:rgba(255,255,255,.075)}
+.ghost .ic{width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;
+  background:rgba(91,140,255,.14);border:1px solid rgba(91,140,255,.22);color:#b9c9ff}
+.ghost b{display:block;font-size:14px;font-weight:600}
+.ghost small{display:block;color:var(--dim);font-size:11px;margin-top:3px}
+.drop{display:none;margin-top:12px;border:1.5px dashed var(--line);border-radius:15px;
+  padding:20px;text-align:center;color:var(--dim);font-size:12.5px;transition:border-color .2s,color .2s}
+body.desktop .drop{display:block}
+.drop.hot{border-color:var(--a1);color:var(--ink2)}
+.panel{margin-top:16px;padding:16px;display:none}
+.phead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.label{font-size:11px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase}
+.stat{display:flex;align-items:baseline;gap:8px;font-variant-numeric:tabular-nums}
+.stat b{font-size:17px;font-weight:640;letter-spacing:-.2px}
+.stat span{font-size:12px;color:var(--dim)}
+.bar{height:5px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden;
+  margin-top:12px;position:relative}
+.bar > i{display:block;height:100%;width:0;border-radius:99px;
+  background:linear-gradient(90deg,#5b8cff,#8b6cff 60%,#34d399);
+  box-shadow:0 0 18px -2px rgba(91,140,255,.75);
+  transition:width .3s cubic-bezier(.4,0,.2,1)}
+ul{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:10px}
+li.row{display:flex;gap:12px;padding:12px 13px;border-radius:16px;overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.025));
+  border:1px solid var(--line2);
+  animation:rise .28s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+li.row[data-state="run"]{border-color:rgba(91,140,255,.28)}
+li.row[data-state="done"]{border-color:rgba(52,211,153,.24);
+  background:linear-gradient(180deg,rgba(52,211,153,.07),rgba(255,255,255,.02))}
+li.row[data-state="err"]{border-color:rgba(248,113,113,.3)}
+.badge{width:36px;height:36px;border-radius:11px;flex:none;display:grid;place-items:center;
+  background:rgba(91,140,255,.13);border:1px solid rgba(91,140,255,.2);color:#b9c9ff}
+.badge[data-kind="video"]{background:rgba(139,108,255,.14);border-color:rgba(139,108,255,.22);color:#cfc4ff}
+.badge[data-kind="audio"]{background:rgba(34,211,238,.13);border-color:rgba(34,211,238,.22);color:#a5f3fc}
+.badge[data-kind="doc"]{background:rgba(251,191,36,.13);border-color:rgba(251,191,36,.22);color:#fde68a}
+.badge[data-kind="other"]{background:rgba(148,163,184,.13);border-color:rgba(148,163,184,.2);color:#cbd5e1}
+.rmain{flex:1 1 auto;min-width:0}
+.l1{display:flex;align-items:center;gap:9px}
+.nm{flex:1 1 auto;min-width:0;font-size:14px;font-weight:560;letter-spacing:-.1px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip{flex:none;font-size:11px;font-variant-numeric:tabular-nums;color:var(--dim);
+  background:rgba(255,255,255,.06);border:1px solid var(--line2);border-radius:999px;
+  padding:3px 8px}
+.chip.ok{color:#a7f3d0;background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.25)}
+.chip.run{color:#c7d5ff;background:rgba(91,140,255,.14);border-color:rgba(91,140,255,.28)}
+.chip.err{color:#fecaca;background:rgba(248,113,113,.13);border-color:rgba(248,113,113,.3);
+  cursor:pointer;text-decoration:none}
+.l2{color:var(--dim);font-size:11.5px;margin-top:5px;font-variant-numeric:tabular-nums;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pb{height:3px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden;
+  margin-top:9px;position:relative}
+.pb > i{display:block;height:100%;width:0;border-radius:99px;
+  background:linear-gradient(90deg,#5b8cff,#8b6cff);
+  transition:width .24s cubic-bezier(.4,0,.2,1)}
+li.row[data-state="done"] .pb > i{background:linear-gradient(90deg,#34d399,#34d399)}
+li.row[data-state="run"] .pb::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);
+  width:36%;animation:shimmer 1.5s linear infinite}
+@keyframes shimmer{from{transform:translateX(-120%)}to{transform:translateX(340%)}}
+.done{margin-top:16px;padding:16px;border-radius:var(--r);display:none;font-size:13.5px;
+  line-height:1.75;color:#d7fbe9;
+  background:linear-gradient(180deg,rgba(52,211,153,.13),rgba(52,211,153,.05));
+  border:1px solid rgba(52,211,153,.32);
+  box-shadow:0 24px 50px -30px rgba(52,211,153,.7),inset 0 1px 0 rgba(255,255,255,.08)}
+.done .dh{display:flex;align-items:center;gap:10px;font-weight:600;color:#eafff5}
+.done .tick{width:26px;height:26px;border-radius:50%;flex:none;display:grid;place-items:center;
+  background:rgba(52,211,153,.2);border:1px solid rgba(52,211,153,.45)}
+.done button{margin-top:13px;width:100%;cursor:pointer;font-family:inherit;font-size:13.5px;
+  color:var(--ink);border-radius:13px;padding:12px;background:var(--glass);
+  border:1px solid var(--line);transition:background .2s}
+.done button:active{background:rgba(255,255,255,.09)}
+footer{color:var(--faint);font-size:11.5px;line-height:1.95;margin-top:18px;letter-spacing:.01em}
+footer b{color:var(--ink2);font-variant-numeric:tabular-nums}
+.sprites{display:none}
+input[type=file]{display:none}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="aurora"></div><div class="grain"></div>
+<main>
+<header class="brand">
+<svg class="mark" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<defs><linearGradient id="mg" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#4f7cff"/><stop offset="1" stop-color="#8b6cff"/></linearGradient></defs>
+<rect width="64" height="64" rx="16" fill="url(#mg)"/>
+<g fill="#fff">
+<rect x="10" y="10" width="15" height="15" rx="5"/><rect x="39" y="10" width="15" height="15" rx="5"/>
+<rect x="10" y="39" width="15" height="15" rx="5"/>
+<rect x="15" y="15" width="5" height="5" rx="2" fill="#3f63e0"/>
+<rect x="44" y="15" width="5" height="5" rx="2" fill="#3f63e0"/>
+<rect x="15" y="44" width="5" height="5" rx="2" fill="#3f63e0"/>
+<rect x="39" y="39" width="6" height="6" rx="2"/><rect x="48" y="39" width="6" height="6" rx="2"/>
+<rect x="39" y="48" width="6" height="6" rx="2"/><rect x="48" y="48" width="6" height="6" rx="2"/>
+</g></svg>
+<div class="who"><h1>传到电脑</h1><div class="sub">连同一个 WiFi · 选完自动传 · 支持断点续传</div></div>
+<div class="pill" id="pill"><i class="dot"></i><span id="pillText">连接中…</span></div>
+</header>
+<section class="card hero">
+<button class="cta" id="btnAlbum">
+<span class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+<rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.6" cy="8.6" r="1.7"/>
+<path d="M21 15.5l-4.4-4.4L7 21"/></svg></span>
+<span class="tx"><b>照片 / 视频</b><small>从相册里多选,一次传一批</small></span>
+<span class="arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+</button>
+<div class="grid2">
+<button class="ghost" id="btnCam">
+<span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5A2.5 2.5 0 015.5 6h1.2l1-1.6h6.6l1 1.6h1.2A2.5 2.5 0 0121 8.5v8A2.5 2.5 0 0118.5 19h-13A2.5 2.5 0 013 16.5z"/>
+<circle cx="12" cy="12.5" r="3.4"/></svg></span>
+<span><b>拍照 / 录像</b><small>拍完直接传</small></span></button>
+<button class="ghost" id="btnFile">
+<span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/>
+<path d="M14 3v5h5"/></svg></span>
+<span><b>任意文件</b><small>文档、压缩包</small></span></button>
+</div>
+<div class="drop" id="drop">把文件拖到这里也能传(电脑浏览器)</div>
+</section>
+<input type="file" id="fAlbum" accept="image/*,video/*" multiple>
+<input type="file" id="fCam" accept="image/*,video/*" capture="environment">
+<input type="file" id="fAny" multiple>
+<section class="card panel" id="panel">
+<div class="phead">
+<div class="label">传输队列</div>
+<div class="stat"><b id="pct">0%</b><span id="cnt">0/0</span></div>
+</div>
+<div class="bar"><i id="obar"></i></div>
+<ul id="list"></ul>
+</section>
+<section class="done" id="done"></section>
+<footer>
+文件按日期存进电脑的收件箱,电脑目前收到 <b id="pcCount">–</b> 个文件。<br>
+网络抖动或切后台断了也别急:重新选同一个文件,会从断点接着传。
+</footer>
+</main>
+<svg class="sprites" xmlns="http://www.w3.org/2000/svg">
+<symbol id="i-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/>
+<circle cx="8.6" cy="8.6" r="1.7"/><path d="M21 15.5l-4.4-4.4L7 21"/></symbol>
+<symbol id="i-video" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="14" height="14" rx="3"/>
+<path d="M16.5 12l5-3.2v6.4z"/></symbol>
+<symbol id="i-audio" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/>
+<circle cx="16.5" cy="16" r="2.5"/></symbol>
+<symbol id="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/>
+<path d="M14 3v5h5M8.5 13h7M8.5 16.5h4.5"/></symbol>
+<symbol id="i-other" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5A2.5 2.5 0 015.5 5h3.2l2 2.5h7.8A2.5 2.5 0 0121 10v7a2.5 2.5 0 01-2.5 2.5h-13A2.5 2.5 0 013 17z"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"
+stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+</svg>
+<script>
+(function(){
+  var CHUNK = __CHUNK__;
+  var MAX_PAR = 2;
+  var items = [];
+  var activeCount = 0;
+  if (!('ontouchstart' in window)) document.body.classList.add('desktop');
+  function $(id){ return document.getElementById(id); }
+  var listEl = $('list'), panelEl = $('panel'), doneEl = $('done'), pillEl = $('pill');
+  function fmt(n){
+    if (n < 1024) return n + ' B';
+    if (n < 1048576) return (n/1024).toFixed(1) + ' KB';
+    if (n < 1073741824) return (n/1048576).toFixed(1) + ' MB';
+    return (n/1073741824).toFixed(2) + ' GB';
+  }
+  function secs(n){
+    return n > 60 ? Math.ceil(n/60) + ' 分' + Math.round(n%60) + ' 秒' : Math.ceil(n) + ' 秒';
+  }
+  function kindOf(f){
+    var t = (f.type || '').toLowerCase(), n = (f.name || '').toLowerCase();
+    var ext = n.indexOf('.') >= 0 ? n.split('.').pop() : '';
+    if (t.indexOf('image/') === 0 || /^(jpg|jpeg|png|gif|webp|bmp|heic|heif|avif)$/.test(ext)) return 'image';
+    if (t.indexOf('video/') === 0 || /^(mp4|mov|avi|mkv|webm|m4v|3gp)$/.test(ext)) return 'video';
+    if (t.indexOf('audio/') === 0 || /^(mp3|wav|m4a|aac|flac|ogg|opus)$/.test(ext)) return 'audio';
+    if (t.indexOf('text/') === 0 || /^(pdf|doc|docx|xls|xlsx|ppt|pptx|txt|md|csv|json|zip|rar|7z|epub)$/.test(ext)) return 'doc';
+    return 'other';
+  }
+  function iconName(k){
+    return k === 'image' ? 'i-image' : k === 'video' ? 'i-video' : k === 'audio' ? 'i-audio'
+         : k === 'doc' ? 'i-doc' : 'i-other';
+  }
+  function setPill(text, cls){
+    $('pillText').textContent = text;
+    pillEl.className = 'pill' + (cls ? ' ' + cls : '');
+  }
+  function refreshPcCount(){
+    fetch('api/state', {cache:'no-store'}).then(function(r){ return r.json(); }).then(function(j){
+      if (!j || !j.ok) throw new Error('bad');
+      $('pcCount').textContent = j.count;
+      if (j.sync && !j.codex_same) {
+        var ft = document.querySelector('footer');
+        if (ft && ft.innerHTML.indexOf('Codex') < 0) {
+          ft.innerHTML += '电脑会把收到的文件自动放一份给 Codex。';
+        }
+      }
+      setPill('已连接', 'on');
+    }).catch(function(){
+      setPill('连不上电脑', 'err');
+    });
+  }
+  function addFiles(fl){
+    if (!fl || !fl.length) return;
+    for (var i = 0; i < fl.length; i++) {
+      var it = { file: fl[i], id: null, sent: 0, speed: 0, status: '等待', err: '' };
+      items.push(it);
+      render(it);
+    }
+    panelEl.style.display = 'block';
+    doneEl.style.display = 'none';
+    pump();
+  }
+  function render(it){
+    if (!it.el) {
+      var li = document.createElement('li');
+      li.className = 'row';
+      li.setAttribute('data-state', 'wait');
+      var k = kindOf(it.file);
+      li.innerHTML =
+        '<div class="badge" data-kind="' + k + '"><svg width="19" height="19"><use href="#' +
+          iconName(k) + '"></use></svg></div>' +
+        '<div class="rmain"><div class="l1"><span class="nm"></span><span class="chip"></span></div>' +
+        '<div class="l2"></div><div class="pb"><i></i></div></div>';
+      listEl.appendChild(li);
+      it.el = li;
+      it.q = { nm: li.querySelector('.nm'), chip: li.querySelector('.chip'),
+               meta: li.querySelector('.l2'), bar: li.querySelector('.pb > i') };
+    }
+    var q = it.q, f = it.file;
+    q.nm.textContent = f.name;
+    var pct = f.size ? Math.min(100, Math.floor(it.sent / f.size * 100)) : 0;
+    q.bar.style.width = pct + '%';
+    var state = it.status === '已完成' ? 'done' : it.status === '失败' ? 'err'
+              : it.status === '上传中' ? 'run' : 'wait';
+    it.el.setAttribute('data-state', state);
+    q.chip.className = 'chip' + (state === 'done' ? ' ok' : state === 'err' ? ' err'
+                                 : state === 'run' ? ' run' : '');
+    q.chip.textContent = state === 'run' ? pct + '%'
+                       : state === 'err' ? '重试' : it.status === '已完成' ? '已收到' : '等待';
+    if (state === 'err') {
+      q.chip.onclick = function(){
+        it.status = '等待'; it.sent = 0; it.speed = 0; it.id = null; it.err = '';
+        render(it); pump();
+      };
+    }
+    var meta = fmt(f.size);
+    if (state === 'run') {
+      meta += ' · ' + fmt(it.sent);
+      if (it.speed > 0) {
+        meta += ' · ' + fmt(it.speed) + '/s · 剩 ' + secs((f.size - it.sent) / it.speed);
+      }
+    } else if (state === 'done') {
+      meta += ' · 已存到电脑';
+    } else if (it.err) {
+      meta += ' · ' + it.err;
+    }
+    q.meta.textContent = meta;
+  }
+  function overall(){
+    var total = 0, sent = 0, done = 0;
+    for (var i = 0; i < items.length; i++) {
+      total += items[i].file.size;
+      sent += Math.min(items[i].sent, items[i].file.size);
+      if (items[i].status === '已完成') done++;
+    }
+    var pct = total ? Math.floor(sent / total * 100) : 0;
+    $('pct').textContent = pct + '%';
+    $('cnt').textContent = done + '/' + items.length;
+    $('obar').style.width = pct + '%';
+    return { total: total, sent: sent, done: done };
+  }
+  function pump(){
+    while (activeCount < MAX_PAR) {
+      var next = null;
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].status === '等待') { next = items[i]; break; }
+      }
+      if (!next) break;
+      activeCount++;
+      next.status = '上传中';
+      render(next);
+      uploadOne(next).then(function(){ activeCount--; pump(); checkDone(); },
+                            function(){ activeCount--; pump(); checkDone(); });
+    }
+    overall();
+  }
+  function checkDone(){
+    var s = overall();
+    if (items.length && s.done === items.length) {
+      doneEl.style.display = 'block';
+      doneEl.innerHTML =
+        '<div class="dh"><span class="tick"><svg width="15" height="15"><use href="#i-check"></use>' +
+        '</svg></span>全部传完了</div>' +
+        items.length + ' 个文件共 ' + fmt(s.total) + ',电脑已经收到了。' +
+        '<button id="again">再传一批</button>';
+      $('again').onclick = function(){
+        items = [];
+        listEl.innerHTML = '';
+        panelEl.style.display = 'none';
+        doneEl.style.display = 'none';
+        refreshPcCount();
+      };
+      refreshPcCount();
+    }
+  }
+  function postJSON(path, obj){
+    return fetch(path, { method: 'POST', cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj) })
+      .then(function(r){
+        return r.text().then(function(t){
+          var j = null;
+          try { j = JSON.parse(t); } catch (e) {}
+          if (r.status === 200 && j && j.ok) return j;
+          throw new Error((j && j.error) || ('请求失败 ' + r.status));
+        });
+      });
+  }
+  function putChunk(id, offset, blob, onProgress){
+    return new Promise(function(resolve, reject){
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', 'api/chunk?id=' + encodeURIComponent(id) + '&offset=' + offset, true);
+      xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+      xhr.upload.onprogress = function(e){
+        if (e.lengthComputable && onProgress) onProgress(e.loaded);
+      };
+      xhr.onload = function(){
+        var j = null;
+        try { j = JSON.parse(xhr.responseText); } catch (e) {}
+        if (xhr.status === 200 && j && j.ok) resolve(j);
+        else reject(new Error((j && j.error) || ('上传失败 ' + xhr.status)));
+      };
+      xhr.onerror = function(){ reject(new Error('网络中断')); };
+      xhr.ontimeout = function(){ reject(new Error('超时')); };
+      xhr.send(blob);
+    });
+  }
+  function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+  function retryable(fn, retries){
+    if (retries === undefined) retries = 4;
+    var attempt = 0;
+    function run(){
+      return fn().catch(function(e){
+        attempt++;
+        if (attempt > retries) throw e;
+        return sleep(Math.min(600 * Math.pow(1.7, attempt), 6000)).then(run);
+      });
+    }
+    return run();
+  }
+  function alreadyOnPc(it){
+    return fetch('api/state', { cache: 'no-store' })
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        var rs = (j && j.received) || [];
+        for (var i = 0; i < rs.length; i++) {
+          if (rs[i].name === it.file.name && rs[i].size === it.file.size) return true;
+        }
+        return false;
+      }).catch(function(){ return false; });
+  }
+  function uploadOne(it){
+    var f = it.file, t0 = 0, b0 = 0;
+    return retryable(function(){
+      return postJSON('api/init', { name: f.name, size: f.size,
+                                    mtime: f.lastModified || 0, kind: f.type || '' });
+    }).then(function(info){
+      it.id = info.id;
+      var offset = info.offset || 0;
+      it.sent = offset;
+      if (offset > 0) it.err = '接着上次的位置继续';
+      render(it);
+      t0 = Date.now(); b0 = offset;
+      function step(){
+        if (offset >= f.size) return Promise.resolve();
+        var end = Math.min(offset + CHUNK, f.size);
+        var blob = f.slice(offset, end);
+        var start = offset;
+        return retryable(function(){
+          return putChunk(it.id, start, blob, function(loaded){
+            it.sent = start + loaded;
+            var dt = (Date.now() - t0) / 1000;
+            if (dt > 1) it.speed = (it.sent - b0) / dt;
+            render(it); overall();
+          });
+        }).then(function(){
+          offset = end;
+          it.sent = offset;
+          var dt = (Date.now() - t0) / 1000;
+          if (dt > 1) it.speed = (offset - b0) / dt;
+          render(it); overall();
+          return step();
+        });
+      }
+      return step();
+    }).then(function(){
+      return retryable(function(){ return postJSON('api/finish', { id: it.id }); });
+    }).then(function(){
+      it.status = '已完成'; it.sent = f.size; it.speed = 0; it.err = ''; render(it);
+    }).catch(function(e){
+      return alreadyOnPc(it).then(function(ok){
+        if (ok) { it.status = '已完成'; it.sent = f.size; it.speed = 0; render(it); return; }
+        it.status = '失败';
+        it.err = (e && e.message) ? e.message : '出错';
+        render(it);
+      });
+    });
+  }
+  $('btnAlbum').onclick = function(){ $('fAlbum').click(); };
+  $('btnCam').onclick = function(){ $('fCam').click(); };
+  $('btnFile').onclick = function(){ $('fAny').click(); };
+  $('fAlbum').addEventListener('change', function(e){ addFiles(e.target.files); e.target.value=''; });
+  $('fCam').addEventListener('change', function(e){ addFiles(e.target.files); e.target.value=''; });
+  $('fAny').addEventListener('change', function(e){ addFiles(e.target.files); e.target.value=''; });
+  var dropEl = $('drop');
+  ['dragenter','dragover'].forEach(function(ev){
+    dropEl.addEventListener(ev, function(e){ e.preventDefault(); dropEl.classList.add('hot'); });
+  });
+  ['dragleave','drop'].forEach(function(ev){
+    dropEl.addEventListener(ev, function(e){ e.preventDefault(); dropEl.classList.remove('hot'); });
+  });
+  dropEl.addEventListener('drop', function(e){
+    if (e.dataTransfer && e.dataTransfer.files) addFiles(e.dataTransfer.files);
+  });
+  window.addEventListener('dragover', function(e){ e.preventDefault(); });
+  window.addEventListener('drop', function(e){ e.preventDefault(); });
+  window.addEventListener('beforeunload', function(e){
+    for (var i = 0; i < items.length; i++) {
+      var st = items[i].status;
+      if (st === '上传中' || st === '等待') { e.preventDefault(); e.returnValue = ''; return ''; }
+    }
+  });
+  refreshPcCount();
+  setInterval(function(){
+    if (pillEl.className.indexOf('err') >= 0) refreshPcCount();
+  }, 5000);
+})();
+</script>
+</body>
+</html>
