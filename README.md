@@ -1,5 +1,9 @@
 # 扫码传文件 · 手机向电脑的局域网直传
 
+[![Release](https://img.shields.io/github/v/release/GLC126/phone-to-pc-transfer?color=5b8cff)](https://github.com/GLC126/phone-to-pc-transfer/releases/latest)
+[![License](https://img.shields.io/github/license/GLC126/phone-to-pc-transfer?color=34d399)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](https://github.com/GLC126/phone-to-pc-transfer/releases/latest)
+
 **一句话:手机扫个码,照片、视频、文件直接进电脑。不装 App、不走外网、不限大小。**
 
 ![电脑端界面](docs/desktop.png)
@@ -40,6 +44,8 @@ pip install pillow qrcode
 1. **装依赖**(只需一次):`pip install pillow qrcode`
 2. **启动**:双击 `启动扫码传文件.bat`,或命令行运行 `python lan_share.py`
 3. **扫码**:手机连同一个 WiFi,用相机/微信扫窗口左边的二维码,在手机页面上选文件即可
+
+> 也可以直接从 [Releases](https://github.com/GLC126/phone-to-pc-transfer/releases/latest) 下载完整源码包。
 
 > 首次运行 Windows 会弹防火墙提示,请勾选「专用网络」并允许,否则手机连不进来。
 
