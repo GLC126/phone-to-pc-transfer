@@ -126,4 +126,4 @@ netsh advfirewall firewall add rule name="扫码传文件" dir=in action=allow p
 
 ## 许可
 
-暂未指定许可证。如需开源分发,请补充 `LICENSE`(例如 MIT)。
+本项目使用 [MIT License](LICENSE)。
